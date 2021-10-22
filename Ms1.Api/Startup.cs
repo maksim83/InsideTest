@@ -5,8 +5,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Ms1.Api.Services;
 using Ms1.Api.Store;
 using Ms1.Api.Store.Services;
+using System;
 
 namespace Ms1.Api
 {
@@ -19,7 +21,7 @@ namespace Ms1.Api
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+
         public void ConfigureServices(IServiceCollection services)
         {
 
@@ -37,9 +39,16 @@ namespace Ms1.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ms1.Api", Version = "v1" });
             });
+
+            services.AddHttpClient<IWsService, WsService>("WsApi",
+                client =>
+                {
+                    client.BaseAddress = new Uri(Configuration.GetValue<string>("WsServiceUrl"));
+                });
+
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -50,11 +59,8 @@ namespace Ms1.Api
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

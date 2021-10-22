@@ -35,7 +35,7 @@ namespace Common.Models
             Ms1Timestamp = DateTime.Now;
         }
 
-        public void SetMs2Timestamp(DateTime dateTime)
+        public void SetMs2Timestamp()
         {
             Ms2Timestamp = DateTime.Now;
         }
