@@ -1,3 +1,4 @@
+using Common.Infrastructure.Utils;
 using Common.Models;
 using System;
 using System.IO;
@@ -18,20 +19,10 @@ namespace WebSocketManager
             WebSocketConnectionManager = webSocketConnectionManager;
         }
 
-        private static async Task<string> GetJson(Message message)
+        public void Connect(string id, WebSocket socket)
         {
-            using var stream = new MemoryStream();
+            WebSocketConnectionManager.AddSocket(id, socket);
 
-            await JsonSerializer.SerializeAsync(stream, message, new JsonSerializerOptions { WriteIndented = true });
-            stream.Position = 0;
-            using var reader = new StreamReader(stream);
-            return await reader.ReadToEndAsync();
-        }
-
-        public  void Connect(string id, WebSocket socket)
-        {
-            WebSocketConnectionManager.AddSocket(id,socket);            
-         
         }
 
         public async Task Disconnect(WebSocket socket)
@@ -46,7 +37,7 @@ namespace WebSocketManager
             if (socket == null || socket.State != WebSocketState.Open)
                 return;
 
-            string jsonMessage = await GetJson(message);
+            string jsonMessage = await JsonHelper.GetJsonAsync(message);
             await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonMessage), 0, jsonMessage.Length), WebSocketMessageType.Text, true, CancellationToken.None);
         }
 

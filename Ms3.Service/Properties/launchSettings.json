@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Ms3.Service": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": "true"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  },
+  "Ms1ApiServiceUrl": "http://localhost:5000/Message"
+}

@@ -9,7 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Models", "Common.Mod
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.WsServer.Api", "Common.WsServer\Common.WsServer.Api.csproj", "{489612B6-1138-432F-A2DF-4779CE556452}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ms2.Service", "Ms2.Service\Ms2.Service.csproj", "{11E244A1-9D72-4DEF-90FA-447CDC01334B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ms2.Service", "Ms2.Service\Ms2.Service.csproj", "{11E244A1-9D72-4DEF-90FA-447CDC01334B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ms3.Service", "Ms3.Service\Ms3.Service.csproj", "{BB34DA63-39D8-4E9D-B369-F7434B356E20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Infrastructure", "Common.Infrastructure\Common.Infrastructure.csproj", "{BCA0B5D3-CEBC-47CC-80CE-4DAB0C8E9A9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{11E244A1-9D72-4DEF-90FA-447CDC01334B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11E244A1-9D72-4DEF-90FA-447CDC01334B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11E244A1-9D72-4DEF-90FA-447CDC01334B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB34DA63-39D8-4E9D-B369-F7434B356E20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB34DA63-39D8-4E9D-B369-F7434B356E20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB34DA63-39D8-4E9D-B369-F7434B356E20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB34DA63-39D8-4E9D-B369-F7434B356E20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCA0B5D3-CEBC-47CC-80CE-4DAB0C8E9A9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCA0B5D3-CEBC-47CC-80CE-4DAB0C8E9A9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCA0B5D3-CEBC-47CC-80CE-4DAB0C8E9A9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCA0B5D3-CEBC-47CC-80CE-4DAB0C8E9A9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,9 @@
 ﻿using Common.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Ms1.Api.Services;
 using Ms1.Api.Store.Services;
+using System;
 using System.Threading.Tasks;
 
 namespace Ms1.Api.Controllers
@@ -12,30 +14,50 @@ namespace Ms1.Api.Controllers
     {
         private readonly IDbService _dbService;
         private readonly IWsService _wsService;
+        private readonly int _processingInterval;
 
-        public MessageController(IDbService dbService, IWsService wsServcie)
+        private static DateTime? _startTime;
+        private static bool _isCanceled;
+        private static long _sessionId;
+
+        public MessageController(IDbService dbService, IWsService wsService, IConfiguration configuration)
         {
             _dbService = dbService;
-            _wsService = wsServcie;
+            _wsService = wsService;
+            _processingInterval = configuration.GetValue<int>("ProcessingInterval");
         }
 
         [HttpGet("/start")]
         public async Task Start()
         {
-            await _wsService.SendMessage();
+            if (_startTime != null)
+                return;
 
+            _startTime = DateTime.Now;
+            _isCanceled = false;
+            _sessionId = DateTime.Now.Ticks / 10 % 1000000000;
+
+            await _wsService.SendMessageAsync(_sessionId);
         }
 
         [HttpGet("/stop")]
-        public async Task Stop()
+        public void Stop()
         {
-            await Task.CompletedTask;
+            _isCanceled = true;
+            _startTime = null;
         }
 
         [HttpPost]
         public async Task<Message> CommitMessage([FromBody] Message message)
         {
-            return await _dbService.AddMessage(message);
+
+            message.CommitMessage();
+            var newMessage = await _dbService.AddMessage(message);
+
+            if (_startTime != null && !_isCanceled && (DateTime.Now - _startTime.Value).TotalSeconds < _processingInterval)
+                await _wsService.SendMessageAsync(_sessionId);
+
+            return newMessage;
         }
     }
 }

@@ -6,16 +6,19 @@ namespace Ms1.Api.Services
 {
     public class WsService : IWsService
     {
-        private readonly HttpClient _client;
+        private readonly HttpClient _httpClient;
 
         public WsService(HttpClient client)
         {
-            _client = client;
+            _httpClient = client;
         }
 
-        public async Task<HttpResponseMessage> SendMessage()
+        public async Task<HttpResponseMessage> SendMessageAsync(long sessionId)
         {
-            return await _client.PostAsJsonAsync(_client.BaseAddress, new Message());
+            var message = new Message();
+            message.SetSessionId(sessionId);
+
+            return await _httpClient.PostAsJsonAsync(_httpClient.BaseAddress, message);
         }
     }
 }

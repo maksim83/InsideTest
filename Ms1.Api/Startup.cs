@@ -24,8 +24,6 @@ namespace Ms1.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-
-
             services.AddControllers();
             services.AddDbContext<InsideTestDbContext>(o =>
             {

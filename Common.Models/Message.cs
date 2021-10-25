@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Common.Models
 {
@@ -11,33 +12,44 @@ namespace Common.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; private set; }
+        [JsonInclude]
+        public int? Id { get; private set; }
+        [JsonInclude]
         public long SessionId { get; private set; }
-        public DateTime Ms1Timestamp { get; private set; }
-        public DateTime Ms2Timestamp { get; private set; }
-        public DateTime Ms3Timestamp { get; private set; }
-        public DateTime EndTimestamp { get; private set; }
+        [JsonInclude]
+        public DateTime? Ms1Timestamp { get; private set; }
+        [JsonInclude]
+        public DateTime? Ms2Timestamp { get; private set; }
+        [JsonInclude]
+        public DateTime? Ms3Timestamp { get; private set; }
+        [JsonInclude]
+        public DateTime? EndTimestamp { get; private set; }
 
 
         public Message()
         {
-            SetSessionId();
-        }
-
-        private void SetSessionId()
-        {
-            SessionId = DateTime.Now.Ticks / 10 % 1000000000;
             Ms1Timestamp = DateTime.Now;
         }
 
-        public void SetMs1Timestamp()
+        public void SetSessionId(long sessionId)
         {
-            Ms1Timestamp = DateTime.Now;
+            SessionId = sessionId;
+
+        }
+
+        public bool IsValid()
+        {
+            return Ms1Timestamp != null && Ms2Timestamp != null && Ms3Timestamp != null;
         }
 
         public void SetMs2Timestamp()
         {
             Ms2Timestamp = DateTime.Now;
+        }
+
+        public void SetMs3Timestamp()
+        {
+            Ms3Timestamp = DateTime.Now;
         }
 
         public void CommitMessage()

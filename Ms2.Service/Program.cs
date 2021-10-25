@@ -1,9 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Ms2.Service.Services;
+
 
 namespace Ms2.Service
 {
@@ -20,6 +18,7 @@ namespace Ms2.Service
             .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<Worker>();
+                    services.AddScoped(typeof(IMessagePublishService), typeof(MessagePublishService));
                 });
     }
 }
