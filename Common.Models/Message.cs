@@ -34,13 +34,7 @@ namespace Common.Models
         public void SetSessionId(long sessionId)
         {
             SessionId = sessionId;
-
-        }
-
-        public bool IsValid()
-        {
-            return Ms1Timestamp != null && Ms2Timestamp != null && Ms3Timestamp != null;
-        }
+        }     
 
         public void SetMs2Timestamp()
         {

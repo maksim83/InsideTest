@@ -11,7 +11,6 @@ namespace Ms3.Service.Services
         public Ms1ApiService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-
         }
 
         public async Task<HttpResponseMessage> SendMessageAsync(Message message)

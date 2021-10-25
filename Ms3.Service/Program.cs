@@ -29,7 +29,7 @@ namespace Ms3.Service
                              client.BaseAddress = new Uri(hostContext.Configuration.GetValue<string>("Ms1ApiServiceUrl"));
                          });
 
-                    JaegerUtils.ConfigureService(services, Assembly.GetEntryAssembly().GetName().Name);
+                    JaegerUtils.ConfigureService(services, Assembly.GetEntryAssembly().GetName().Name, hostContext.Configuration);
                 });
     }
 }

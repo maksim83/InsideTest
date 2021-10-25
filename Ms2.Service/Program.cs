@@ -20,7 +20,7 @@ namespace Ms2.Service
                 {
                     services.AddHostedService<Worker>();
                     services.AddScoped(typeof(IMessagePublishService), typeof(MessagePublishService));
-                    JaegerUtils.ConfigureService(services, Assembly.GetEntryAssembly().GetName().Name);
+                    JaegerUtils.ConfigureService(services, Assembly.GetEntryAssembly().GetName().Name, hostContext.Configuration);
                 });
     }
 }

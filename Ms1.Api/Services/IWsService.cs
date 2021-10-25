@@ -1,5 +1,4 @@
 ﻿using Common.Models;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Ms1.Api.Services

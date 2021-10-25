@@ -27,7 +27,7 @@ namespace Ms1.Api.Controllers
         {
             _dbService = dbService;
             _wsService = wsService;
-            _processingInterval = configuration.GetValue<int>("ProcessingInterval");
+            _processingInterval = configuration.GetValue<int>("ProcessingInterval");            
             _tracer = tracer;
         }
 

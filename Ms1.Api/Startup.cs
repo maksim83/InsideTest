@@ -23,7 +23,6 @@ namespace Ms1.Api
 
         public IConfiguration Configuration { get; }
 
-
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
@@ -46,8 +45,7 @@ namespace Ms1.Api
                     client.BaseAddress = new Uri(Configuration.GetValue<string>("WsServiceUrl"));
                 });
 
-            JaegerUtils.ConfigureService(services, Assembly.GetEntryAssembly().GetName().Name);
-
+            JaegerUtils.ConfigureService(services, Assembly.GetEntryAssembly().GetName().Name, Configuration);
         }
 
 
@@ -56,9 +54,10 @@ namespace Ms1.Api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ms1.Api v1"));
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ms1.Api v1"));
 
             app.UseHttpsRedirection();
             app.UseRouting();

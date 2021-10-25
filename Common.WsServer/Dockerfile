@@ -1,22 +1,24 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["Gis.WsServer/Gis.WsServer.csproj", "Gis.WsServer/"]
-RUN dotnet restore "Gis.WsServer/Gis.WsServer.csproj"
+COPY ["Common.WsServer/Common.WsServer.Api.csproj", "Common.WsServer/"]
+COPY ["Common.Models/Common.Models.csproj", "Common.Models/"]
+COPY ["Common.Infrastructure/Common.Infrastructure.csproj", "Common.Infrastructure/"]
+RUN dotnet restore "Common.WsServer/Common.WsServer.Api.csproj"
 COPY . .
-WORKDIR "/src/Gis.WsServer"
-RUN dotnet build "Gis.WsServer.csproj" -c Release -o /app/build
+WORKDIR "/src/Common.WsServer"
+RUN dotnet build "Common.WsServer.Api.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Gis.WsServer.csproj" -c Release -o /app/publish
+RUN dotnet publish "Common.WsServer.Api.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Gis.WsServer.dll"]
+ENTRYPOINT ["dotnet", "Common.WsServer.Api.dll"]

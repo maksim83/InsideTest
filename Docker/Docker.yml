@@ -1,0 +1,111 @@
+version: '3.7'
+
+services:
+
+ MariaDb:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: root123
+      MARIADB_DATABASE: InsideTest
+      MARIADB_USER: InsideTest
+      MARIADB_PASSWORD: insidetest
+    volumes:
+     - /var/lib/InsideTest/Db:/var/lib/mysql      
+    ports:
+     - 8666:3306
+     - 3306:3306
+     
+ Adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8555:8080
+
+ Zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+ Kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_CREATE_TOPICS: "InsideTest:2:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+
+ Jaeger: 
+    image: jaegertracing/all-in-one:latest
+    ports:
+     - "5775:5775/udp"
+     - "6831:6831/udp"
+     - "6832:6832/udp"
+     - "5778:5778"
+     - "16686:16686"
+     - "14268:14268"
+     - "9411:9411"
+     
+     
+ WsServer:
+   image: maksimshevtsov/commonwsserverapi  
+   expose:
+    - "80"
+   ports:
+    - "5555:80"
+
+ Ms1:
+   image: maksimshevtsov/ms1api
+   environment:   
+    - ConnectionStrings:InsideTestDbContext=server=MariaDb;port=3306;user=InsideTest;password=insidetest;database=InsideTest;charset=utf8  
+    - WsServiceUrl=http://WsServer/SendMessage/Ms2
+    - Jaeger:Host=Jaeger
+    - Jaeger:Port=6831
+    - ProcessingInterval=180
+   expose:
+    - "80"
+   ports:
+    - "5556:80"
+   depends_on:
+    - MariaDb
+    - Kafka
+    - Jaeger
+    - WsServer
+   
+ Ms2:
+   image: maksimshevtsov/ms2service
+   restart: unless-stopped
+   environment:     
+    - WsServiceUrl=ws://WsServer/ws?Id=Ms2
+    - KafkaConfig:Url=kafka:9093
+    - KafkaConfig:Topic=InsideTest
+    - Jaeger:Host=Jaeger
+    - Jaeger:Port=6831    
+   ports:
+    - "5557:80"
+   depends_on:
+    - Ms1
+    - Kafka
+   
+   
+ Ms3:
+  image: maksimshevtsov/ms3service
+  restart: unless-stopped
+  environment:      
+   - Ms1ApiServiceUrl=http://Ms1/Message
+   - KafkaConfig:Url=kafka:9093
+   - KafkaConfig:Topic=InsideTest
+   - KafkaConfig:GroupId=InsideTest
+   - Jaeger:Host=Jaeger
+   - Jaeger:Port=6831    
+  ports:
+   - "5558:80"
+  depends_on:
+   - Ms2
+   - Ms1
+   - Kafka

@@ -1,9 +1,6 @@
-﻿using Common.Infrastructure.Utils;
-using Common.Models;
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Ms2.Service.Services
 {
@@ -13,7 +10,6 @@ namespace Ms2.Service.Services
         private readonly ConsumerConfig _consumerConfig;
         private readonly string _messageTopic;
 
-
         public MessageConsumeService(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -21,9 +17,7 @@ namespace Ms2.Service.Services
             {
                 GroupId = _configuration.GetSection("KafkaConfig").GetValue<string>("GroupId"),
                 BootstrapServers = _configuration.GetSection("KafkaConfig").GetValue<string>("Url"),
-                AutoOffsetReset = AutoOffsetReset.Earliest,
-                EnableAutoCommit = true
-
+                AutoOffsetReset = AutoOffsetReset.Earliest
             };
             _messageTopic = _configuration.GetSection("KafkaConfig").GetValue<string>("Topic");
         }
@@ -33,12 +27,17 @@ namespace Ms2.Service.Services
             using var builder = new ConsumerBuilder<Null, string>(_consumerConfig).Build();
             builder.Subscribe(_messageTopic);
 
-            var result = builder.Consume(stoppingToken).Message.Value;
-            builder.Commit();
+            try
+            {
+                var result = builder.Consume(stoppingToken).Message.Value;
+                builder.Commit();
 
-            return result;
-
-
+                return result;
+            }
+            catch (ConsumeException)
+            {
+                return null;
+            }
         }
 
     }
