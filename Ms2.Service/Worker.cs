@@ -3,13 +3,11 @@ using Common.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Ms2.Service.Services;
 using OpenTracing;
 using System;
 using System.Net.WebSockets;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,14 +15,13 @@ namespace Ms2.Service
 {
     public class Worker : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
+
         private readonly IConfiguration _configuration;
         private readonly IServiceScopeFactory _scopeFactory;
         private ClientWebSocket _webSocketClient = new ClientWebSocket();
 
-        public Worker(ILogger<Worker> logger, IConfiguration configuration, IServiceScopeFactory scopeFactory)
+        public Worker(IConfiguration configuration, IServiceScopeFactory scopeFactory)
         {
-            _logger = logger;
             _configuration = configuration;
             _scopeFactory = scopeFactory;
         }
@@ -32,7 +29,6 @@ namespace Ms2.Service
         private async Task InitWebSoketClient()
         {
             await _webSocketClient.ConnectAsync(new Uri(_configuration.GetValue<string>("WsServiceUrl")), CancellationToken.None);
-
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,7 +37,7 @@ namespace Ms2.Service
 
             using var scope = _scopeFactory.CreateScope();
             var messagePublishService = scope.ServiceProvider.GetRequiredService<IMessagePublishService>();
-            var tracer= scope.ServiceProvider.GetRequiredService<ITracer>();
+            var tracer = scope.ServiceProvider.GetRequiredService<ITracer>();
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -53,7 +49,7 @@ namespace Ms2.Service
 
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    var message =  await JsonHelper.GetObjectAsync<Message>(Encoding.UTF8.GetString(buffer, 0, result.Count));
+                    var message = await JsonHelper.GetObjectAsync<Message>(Encoding.UTF8.GetString(buffer, 0, result.Count));
 
                     await JaegerUtils.SetSpan(tracer, message, "Recieve from Ms1");
 
