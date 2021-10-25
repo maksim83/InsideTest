@@ -1,11 +1,13 @@
 ﻿using Common.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace Ms1.Api.Store.Services
 {
     public interface IDbService
     {
-        public Task<Message> AddMessage(Message message);
+        public Task AddMessage(Message message);
+        public Task<int> GetMessageCount(long sessionId);
     }
 
     public class DbService : IDbService
@@ -15,18 +17,17 @@ namespace Ms1.Api.Store.Services
         public DbService(InsideTestDbContext insideDbContext)
         {
             _insideTestDbContext = insideDbContext;
-
         }
 
-        public async Task<Message> AddMessage(Message message)
+        public async Task AddMessage(Message message)
         {
-           var savedMessage= await _insideTestDbContext.Messages.AddAsync(message);
+            await _insideTestDbContext.Messages.AddAsync(message);
             await _insideTestDbContext.SaveChangesAsync();
+        }
 
-            return savedMessage.Entity;
-
-
-
+        public async Task<int> GetMessageCount(long sessionId)
+        {
+            return await _insideTestDbContext.Messages.CountAsync(x => x.SessionId == sessionId);
         }
     }
 

@@ -2,7 +2,6 @@
 using Common.Models;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Threading.Tasks;
 
 namespace Ms2.Service.Services
@@ -28,16 +27,8 @@ namespace Ms2.Service.Services
 
         public async Task PublishMessage(Message message)
         {
-
             using var producer = new ProducerBuilder<Null, string>(_producerConfig).Build();
-            try
-            {
-                await producer.ProduceAsync(_messageTopic, new Message<Null, string> { Value = await JsonHelper.GetJsonAsync(message) });
-            }
-            catch (Exception e)
-            {
-            }
-
+            await producer.ProduceAsync(_messageTopic, new Message<Null, string> { Value = await JsonHelper.GetJsonAsync(message) });
         }
 
 

@@ -1,7 +1,8 @@
+using Common.Infrastructure.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ms2.Service.Services;
-
+using System.Reflection;
 
 namespace Ms2.Service
 {
@@ -19,6 +20,7 @@ namespace Ms2.Service
                 {
                     services.AddHostedService<Worker>();
                     services.AddScoped(typeof(IMessagePublishService), typeof(MessagePublishService));
+                    JaegerUtils.ConfigureService(services, Assembly.GetEntryAssembly().GetName().Name);
                 });
     }
 }

@@ -6,6 +6,6 @@ namespace Ms1.Api.Services
 {
     public interface IWsService
     {
-        public  Task<HttpResponseMessage> SendMessageAsync(long sessionId);
+        public  Task<Message> SendMessageAsync(long sessionId);
     }
 }

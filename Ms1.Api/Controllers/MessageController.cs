@@ -1,8 +1,10 @@
-﻿using Common.Models;
+﻿using Common.Infrastructure.Utils;
+using Common.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Ms1.Api.Services;
 using Ms1.Api.Store.Services;
+using OpenTracing;
 using System;
 using System.Threading.Tasks;
 
@@ -15,16 +17,18 @@ namespace Ms1.Api.Controllers
         private readonly IDbService _dbService;
         private readonly IWsService _wsService;
         private readonly int _processingInterval;
+        private readonly ITracer _tracer;
 
         private static DateTime? _startTime;
         private static bool _isCanceled;
         private static long _sessionId;
 
-        public MessageController(IDbService dbService, IWsService wsService, IConfiguration configuration)
+        public MessageController(IDbService dbService, IWsService wsService, IConfiguration configuration, ITracer tracer)
         {
             _dbService = dbService;
             _wsService = wsService;
             _processingInterval = configuration.GetValue<int>("ProcessingInterval");
+            _tracer = tracer;
         }
 
         [HttpGet("/start")]
@@ -37,27 +41,31 @@ namespace Ms1.Api.Controllers
             _isCanceled = false;
             _sessionId = DateTime.Now.Ticks / 10 % 1000000000;
 
-            await _wsService.SendMessageAsync(_sessionId);
+            var message = await _wsService.SendMessageAsync(_sessionId);
         }
 
         [HttpGet("/stop")]
         public void Stop()
         {
             _isCanceled = true;
-            _startTime = null;
         }
 
         [HttpPost]
-        public async Task<Message> CommitMessage([FromBody] Message message)
+        public async Task CommitMessage([FromBody] Message message)
         {
 
+            await JaegerUtils.SetSpan(_tracer, message, "Recieve from Ms3");
+
             message.CommitMessage();
-            var newMessage = await _dbService.AddMessage(message);
+            await _dbService.AddMessage(message);
 
             if (_startTime != null && !_isCanceled && (DateTime.Now - _startTime.Value).TotalSeconds < _processingInterval)
                 await _wsService.SendMessageAsync(_sessionId);
-
-            return newMessage;
+            else
+            {
+                Console.WriteLine($"Messages processed:{ await _dbService.GetMessageCount(_sessionId)}\nTime elapsed: {DateTime.Now - (_startTime != null ? _startTime.Value : DateTime.Now)}");
+                _startTime = null;
+            }
         }
     }
 }

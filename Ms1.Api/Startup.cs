@@ -1,3 +1,4 @@
+using Common.Infrastructure.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using Ms1.Api.Services;
 using Ms1.Api.Store;
 using Ms1.Api.Store.Services;
 using System;
+using System.Reflection;
 
 namespace Ms1.Api
 {
@@ -43,6 +45,8 @@ namespace Ms1.Api
                 {
                     client.BaseAddress = new Uri(Configuration.GetValue<string>("WsServiceUrl"));
                 });
+
+            JaegerUtils.ConfigureService(services, Assembly.GetEntryAssembly().GetName().Name);
 
         }
 

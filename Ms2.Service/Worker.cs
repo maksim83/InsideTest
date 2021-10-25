@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Ms2.Service.Services;
+using OpenTracing;
 using System;
 using System.Net.WebSockets;
 using System.Text;
@@ -40,6 +41,7 @@ namespace Ms2.Service
 
             using var scope = _scopeFactory.CreateScope();
             var messagePublishService = scope.ServiceProvider.GetRequiredService<IMessagePublishService>();
+            var tracer= scope.ServiceProvider.GetRequiredService<ITracer>();
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -52,6 +54,8 @@ namespace Ms2.Service
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
                     var message =  await JsonHelper.GetObjectAsync<Message>(Encoding.UTF8.GetString(buffer, 0, result.Count));
+
+                    await JaegerUtils.SetSpan(tracer, message, "Recieve from Ms1");
 
                     if (message != null)
                     {

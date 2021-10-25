@@ -13,12 +13,13 @@ namespace Ms1.Api.Services
             _httpClient = client;
         }
 
-        public async Task<HttpResponseMessage> SendMessageAsync(long sessionId)
+        public async Task<Message> SendMessageAsync(long sessionId)
         {
             var message = new Message();
             message.SetSessionId(sessionId);
 
-            return await _httpClient.PostAsJsonAsync(_httpClient.BaseAddress, message);
+             await _httpClient.PostAsJsonAsync(_httpClient.BaseAddress, message);
+            return message;
         }
     }
 }
