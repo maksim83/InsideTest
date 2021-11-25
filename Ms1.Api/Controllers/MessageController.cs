@@ -27,7 +27,7 @@ namespace Ms1.Api.Controllers
         {
             _dbService = dbService;
             _wsService = wsService;
-            _processingInterval = configuration.GetValue<int>("ProcessingInterval");            
+            _processingInterval = configuration.GetValue<int>("ProcessingInterval");
             _tracer = tracer;
         }
 
@@ -41,7 +41,11 @@ namespace Ms1.Api.Controllers
             _isCanceled = false;
             _sessionId = DateTime.Now.Ticks / 10 % 1000000000;
 
-            var message = await _wsService.SendMessageAsync(_sessionId);
+
+            while (_startTime != null && !_isCanceled && (DateTime.Now - _startTime.Value).TotalSeconds < _processingInterval)
+                await _wsService.SendMessageAsync(_sessionId);
+
+            Console.WriteLine($"Messages processed:{ await _dbService.GetMessageCount(_sessionId)}\nTime elapsed: {DateTime.Now - (_startTime != null ? _startTime.Value : DateTime.Now)}");
         }
 
         [HttpGet("/stop")]
@@ -59,13 +63,8 @@ namespace Ms1.Api.Controllers
             message.CommitMessage();
             await _dbService.AddMessage(message);
 
-            if (_startTime != null && !_isCanceled && (DateTime.Now - _startTime.Value).TotalSeconds < _processingInterval)
-                await _wsService.SendMessageAsync(_sessionId);
-            else
-            {
-                Console.WriteLine($"Messages processed:{ await _dbService.GetMessageCount(_sessionId)}\nTime elapsed: {DateTime.Now - (_startTime != null ? _startTime.Value : DateTime.Now)}");
-                _startTime = null;
-            }
+
+
         }
     }
 }
